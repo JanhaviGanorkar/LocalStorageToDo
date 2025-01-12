@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { auth } from './data/Aut';
 import Home from "./Home";
 import { Button } from "./ui/button";
-// import Welcome from "./Veri";
 function Varification() {
 
   const [user, setUser] = useState(null);

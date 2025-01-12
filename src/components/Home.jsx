@@ -193,7 +193,7 @@ const Home = () => {
           </button>
         )}
       </div>
-      <Button>fwewfe</Button>
+      
     </div>
   );
 
