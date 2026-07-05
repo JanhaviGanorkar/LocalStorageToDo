@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
+
 const Home = () => {
-  
   const [todo, setTodo] = useState(() => {
     const savedTodo = localStorage.getItem('todoList');
     return savedTodo ? JSON.parse(savedTodo) : [];
@@ -12,7 +12,6 @@ const Home = () => {
   const [isEditing, setIsEditing] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("All");
-  const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
     localStorage.setItem('todoList', JSON.stringify(todo));
@@ -27,7 +26,12 @@ const Home = () => {
         setTodo(updatedTodo);
         setIsEditing(null);
       } else {
-        setTodo([...todo, { ...newTask, completed: false }]);
+        const taskToAdd = {
+          ...newTask,
+          category: newTask.category.trim() || "Uncategorized",
+          completed: false
+        };
+        setTodo([...todo, taskToAdd]);
       }
       setNewTask({ title: "", task: "", priority: "Medium", dueDate: "", category: "" });
       setIsAdding(false);
@@ -53,125 +57,154 @@ const Home = () => {
   };
 
   const filteredAndSearchedTasks = todo.filter(task => {
-    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          task.task.toLowerCase().includes(searchTerm.toLowerCase());
+    const titleText = task.title ? task.title.toLowerCase() : "";
+    const taskText = task.task ? task.task.toLowerCase() : "";
+    const search = searchTerm.toLowerCase();
+
+    const matchesSearch = titleText.includes(search) || taskText.includes(search);
     const matchesFilter = filter === "All" || task.category === filter;
 
     return matchesSearch && matchesFilter;
   });
 
   return (
-    <div className={`${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"} min-h-screen flex flex-col items-center`}>
-      <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-md mt-10">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">To-Do List</h1>
-          <button
-            className="text-sm bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700"
-            onClick={() => setDarkMode(!darkMode)}
-          >
-            {darkMode ? "Light Mode" : "Dark Mode"}
-          </button>
+    // min-h-[100vh] और bg-black सेट है, टेक्स्ट हमेशा व्हाइट रहेगा
+    <div className="w-full min-h-[100vh] flex items-center bg-black justify-center px-4 relative overflow-hidden text-white">
+      
+      {/* 🔮 बैकग्राउंड एनिमेटेड गोला */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-purple-500 opacity-25 blur-[120px] animate-[bounce_6s_infinite_alternate] z-0 pointer-events-none"></div>
+
+      {/* 📦 मुख्य डार्क ग्लास कार्ड */}
+      <div className="w-full max-w-2xl p-8 rounded-2xl shadow-2xl border border-gray-800 bg-gray-950/75 backdrop-blur-md z-10">
+        
+        {/* हेडर (बटन हटा दिया है) */}
+        <div className="flex justify-between items-center mb-6 border-b border-gray-500/20 pb-4">
+          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">To-Do Dashboard</h1>
         </div>
 
-        <div className="mb-4">
+        {/* सर्च और फ़िल्टर */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
           <input
-            className="w-full p-2 rounded mb-2 focus:outline-none bg-gray-600"
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-700 bg-gray-900/90 placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all text-sm"
             type="text"
-            placeholder="Search tasks..."
+            placeholder="🔍 Search tasks..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <select
-            className="w-full p-2 rounded focus:outline-none bg-gray-600"
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-700 bg-gray-900/90 text-white focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all text-sm cursor-pointer"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
-            <option className='bg-gray-600' value="All">All Categories</option>
+            <option value="All">All Categories</option>
             <option value="Work">Work</option>
             <option value="Personal">Personal</option>
             <option value="Shopping">Shopping</option>
+            <option value="Uncategorized">Uncategorized</option>
           </select>
         </div>
 
-        <ul>
-          {filteredAndSearchedTasks.map((item, index) => (
-            <li key={index} className={`mb-4 p-4 bg-gray-700 rounded flex justify-between items-center transition-all ${item.completed ? "opacity-50" : ""}`}>
-              <div>
-                <h3 className="text-xl font-semibold">{item.title} ({item.priority})</h3>
-                <p className="text-gray-300">{item.task}</p>
-                <p className="text-gray-400 text-sm">Due: {item.dueDate || "No due date"}</p>
-                <p className="text-gray-400 text-sm">Category: {item.category || "Uncategorized"}</p>
-              </div>
-              <div className="flex items-center">
-                <button
-                  className="mr-2 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                  onClick={() => toggleComplete(index)}
-                >
-                  {item.completed ? "Undo" : "Complete"}
-                </button>
-                <button
-                  className="mr-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  onClick={() => startEditing(index)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                  onClick={() => deleteTask(index)}
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
+        {/* टास्क लिस्ट */}
+        <ul className="max-h-[320px] overflow-y-auto space-y-3 pr-1 scrollbar-thin">
+          {filteredAndSearchedTasks.length === 0 ? (
+            <p className="text-center text-sm text-gray-400 my-4">No tasks found. Add some!</p>
+          ) : (
+            filteredAndSearchedTasks.map((item, index) => (
+              <li key={index} className={`p-4 border rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition-all bg-gray-900/60 border-gray-800 ${item.completed ? "opacity-40 line-through" : ""}`}>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-lg font-bold">{item.title}</h3>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${item.priority === "High" ? "bg-red-500/20 text-red-500" : item.priority === "Medium" ? "bg-yellow-500/20 text-yellow-500" : "bg-green-500/20 text-green-500"}`}>
+                      {item.priority}
+                    </span>
+                    {item.category && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400">
+                        {item.category}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm mt-1 text-gray-300">{item.task}</p>
+                  <p className="text-gray-400 text-xs mt-1.5">📅 Due: {item.dueDate || "No due date"}</p>
+                </div>
+                
+                {/* एक्शन बटन्स */}
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-0 pt-2 sm:pt-0 border-gray-500/10">
+                  <button
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg text-white transition-all ${item.completed ? "bg-amber-600 hover:bg-amber-700" : "bg-emerald-600 hover:bg-emerald-700"}`}
+                    onClick={() => toggleComplete(index)}
+                  >
+                    {item.completed ? "Undo" : "Complete"}
+                  </button>
+                  <button
+                    className="px-3 py-1.5 text-xs font-semibold bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-all"
+                    onClick={() => startEditing(index)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="px-3 py-1.5 text-xs font-semibold bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-all"
+                    onClick={() => deleteTask(index)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))
+          )}
         </ul>
 
+        {/* नया टास्क जोड़ने का फॉर्म */}
         {isAdding && (
-          <div className="mt-6">
+          <div className="mt-6 p-5 border border-gray-700 bg-gray-900/90 rounded-xl space-y-4 transition-all">
+            <h4 className="text-md font-bold border-b border-gray-500/10 pb-1">{isEditing !== null ? '✏️ Edit Task' : '➕ Add New Task'}</h4>
             <input
-              className="mb-3 p-2 w-full bg-gray-700 rounded focus:outline-none"
+              className="w-full px-4 py-2 rounded-xl border border-gray-800 bg-gray-950 text-white focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm"
               type="text"
-              placeholder="Title"
+              placeholder="Task Title"
               value={newTask.title}
               onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
             />
             <textarea
-              className="mb-3 p-2 w-full bg-gray-700 rounded focus:outline-none"
-              placeholder="Description"
+              className="w-full px-4 py-2 rounded-xl border border-gray-800 bg-gray-950 text-white focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm h-20 resize-none"
+              placeholder="Task Description"
               value={newTask.task}
               onChange={(e) => setNewTask({ ...newTask, task: e.target.value })}
             />
-            <select
-              className="mb-3 p-2 w-full bg-gray-700 rounded focus:outline-none"
-              value={newTask.priority}
-              onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-            >
-              <option value="High">High Priority</option>
-              <option value="Medium">Medium Priority</option>
-              <option value="Low">Low Priority</option>
-            </select>
-            <input
-              className="mb-3 p-2 w-full bg-gray-700 rounded focus:outline-none"
-              type="date"
-              value={newTask.dueDate}
-              onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-            />
-            <input
-              className="mb-3 p-2 w-full bg-gray-700 rounded focus:outline-none"
-              type="text"
-              placeholder="Category"
-              value={newTask.category}
-              onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
-            />
-            <div className="flex justify-between">
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <select
+                className="w-full px-3 py-2 rounded-xl border border-gray-800 bg-gray-950 text-white focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm"
+                value={newTask.priority}
+                onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
+              >
+                <option value="High">High Priority</option>
+                <option value="Medium">Medium Priority</option>
+                <option value="Low">Low Priority</option>
+              </select>
+              <input
+                className="w-full px-3 py-2 rounded-xl border border-gray-800 bg-gray-950 text-white focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm"
+                type="date"
+                value={newTask.dueDate}
+                onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+              />
+              <input
+                className="w-full px-3 py-2 rounded-xl border border-gray-800 bg-gray-950 text-white focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm"
+                type="text"
+                placeholder="Category (e.g. Work)"
+                value={newTask.category}
+                onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
               <button
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                className="px-4 py-2 bg-pink-500 text-white font-medium text-sm rounded-xl hover:bg-pink-600 transition-all shadow-sm"
                 onClick={saveTask}
               >
                 {isEditing !== null ? 'Update Task' : 'Save Task'}
               </button>
               <button
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                className="px-4 py-2 bg-gray-700 text-white font-medium text-sm rounded-xl hover:bg-gray-600 transition-all"
                 onClick={() => {
                   setIsAdding(false);
                   setIsEditing(null);
@@ -184,19 +217,18 @@ const Home = () => {
           </div>
         )}
 
+        {/* टास्क जोड़ने का बटन */}
         {!isAdding && (
-          <button
-            className="mt-6 w-full px-4 py-2 bg-fuchsia-600 text-white rounded hover:bg-fuchsia-700"
+          <Button
             onClick={() => setIsAdding(true)}
+            className="mt-6 w-full py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold text-base rounded-xl transition-all shadow-md"
           >
-            Add Task
-          </button>
+            🚀 Add New Task
+          </Button>
         )}
       </div>
-      
     </div>
   );
-
 };
 
 export default Home;

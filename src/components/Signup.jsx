@@ -1,14 +1,14 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { auth } from './data/Aut';
+import { auth } from './data/Aut'; // Path agar upar-neeche ho toh check kar lena
 import { Button } from './ui/button';
+
 function SignUp() {
-  // Initialize useForm hook
+  // React Hook Form ko initialize kiya
   const { register, handleSubmit, formState: { errors } } = useForm();
 
-  // Handle form submission
+  // Form submit hone par kya hoga
   const onSubmit = (data) => {
-    // Check if the user already exists
     const userExists = auth.some(
       (user) => user.Email === data.email
     );
@@ -16,7 +16,6 @@ function SignUp() {
     if (userExists) {
       alert("User with this email already exists.");
     } else {
-      // Add the new user to the auth array
       auth.push({
         Username: data.name,
         Email: data.email,
@@ -28,26 +27,36 @@ function SignUp() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl font-semibold text-center mb-6">Sign Up</h2>
+    <div className="w-full min-h-[85vh] flex items-center justify-center px-4 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-purple-500 opacity-30 blur-[100px] animate-[bounce_6s_infinite_alternate] z-0 pointer-events-none"></div>
 
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-gray-700 mb-2">Name</label>
+      {/* 📦 Sign Up ka main box—z-10 se ye hamesha upar rahega aur center me fit rahega */}
+      <form 
+        onSubmit={handleSubmit(onSubmit)} 
+        className="w-full max-w-lg p-8 border border-white/20 rounded-2xl shadow-xl bg-white/80 backdrop-blur-md z-10"
+      >
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Create Account</h2>
+
+        {/* Name Field */}
+        <div className="mb-5 flex flex-col gap-1">
+          <label htmlFor="name" className="text-sm font-medium text-gray-600 pl-1">Name</label>
           <input
             id="name"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your full name"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all text-base bg-white/90"
             {...register('name', { required: 'Name is required' })}
           />
-          {errors.name && <span className="text-red-600">{errors.name.message}</span>}
+          {errors.name && <span className="text-red-500 text-xs pl-1 mt-1">{errors.name.message}</span>}
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700 mb-2">Email</label>
+        {/* Email Field */}
+        <div className="mb-5 flex flex-col gap-1">
+          <label htmlFor="email" className="text-sm font-medium text-gray-600 pl-1">Email Address</label>
           <input
             id="email"
             type="email"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your email"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all text-base bg-white/90"
             {...register('email', {
               required: 'Email is required',
               pattern: {
@@ -56,15 +65,17 @@ function SignUp() {
               },
             })}
           />
-          {errors.email && <span className="text-red-600">{errors.email.message}</span>}
+          {errors.email && <span className="text-red-500 text-xs pl-1 mt-1">{errors.email.message}</span>}
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-gray-700 mb-2">Password</label>
+        {/* Password Field */}
+        <div className="mb-6 flex flex-col gap-1">
+          <label htmlFor="password" className="text-sm font-medium text-gray-600 pl-1">Password</label>
           <input
             id="password"
             type="password"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Create a strong password"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all text-base bg-white/90"
             {...register('password', {
               required: 'Password is required',
               minLength: {
@@ -73,15 +84,18 @@ function SignUp() {
               },
             })}
           />
-          {errors.password && <span className="text-red-600">{errors.password.message}</span>}
+          {errors.password && <span className="text-red-500 text-xs pl-1 mt-1">{errors.password.message}</span>}
         </div>
-{/* w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors */}
+
+        {/* Submit Button */}
         <Button
-          type="submit" className="w-full"
+          type="submit" 
+          className="w-full py-3 bg-pink-500 hover:bg-pink-600 text-white font-semibold text-lg rounded-xl transition-colors mt-2 shadow-sm"
         >
           Submit
         </Button>
       </form>
+
     </div>
   );
 }

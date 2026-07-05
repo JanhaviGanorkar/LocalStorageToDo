@@ -1,0 +1,13 @@
+{
+  "dora-styles": "0.0.4",
+  "aliases": {
+    "styles": "@/styles",
+    "utils": "@/lib/utils",
+    "components": "@/components",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "iconLibrary": "lucide",
+  "styleLanguage": "css",
+  "globalStylePath": "src/index.css"
+}
